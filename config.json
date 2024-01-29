@@ -1,0 +1,13 @@
+{   
+    "data":{
+        "dataset":"mnist",
+        "data_directory":"downloaded_datasets",
+        "ratio":[0.8,0.1,0.1],
+        "batch_size":64,
+        "transforms": [
+            {"name": "Resize", "params": {"height": 256, "width": 256}},
+            {"name": "Normalize", "params": {"mean": [0.485, 0.456, 0.406], "std": [0.229, 0.224, 0.225]}},
+            {"name": "ToTensor"}
+        ]
+    }
+}

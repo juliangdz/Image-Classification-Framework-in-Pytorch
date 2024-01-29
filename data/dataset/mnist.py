@@ -1,0 +1,41 @@
+from torch.utils.data import Dataset,DataLoader
+import torchvision
+from data.stratify_logic import train_test_val_split
+
+__all__ = ["load_mnist_dataset"]
+
+class MNIST(Dataset):
+    def __init__(self,phase='train',transforms=None,data_dir:str='./data',ratio:list=[0.8,0.1,0.1]):
+        super().__init__()
+        self.mnist = torchvision.datasets.MNIST(root=data_dir,train=True,download=True)
+        self.train_dataset,self.val_dataset,self.test_dataset = train_test_val_split(self.mnist,ratio)
+        self.transforms = transforms
+        if phase == 'val':
+            self.dataset = self.val_dataset
+        elif phase == 'test':
+            self.dataset = self.test_dataset
+        else:
+            self.dataset = self.train_dataset
+        
+    def __len__(self):
+        return len(self.dataset)
+
+    def __getitem__(self, idx):
+        image, label = self.dataset[idx]
+
+        if self.transform:
+            image = self.transform(image)
+
+        return image, label
+    
+    
+def load_mnist_dataset(data_dir:str,ratio:list[0.8,0.1,0.1],transforms=None,batch_size:int=64):
+    train_dataset = MNIST(phase='train',transforms=transforms,data_dir=data_dir,ratio=ratio)
+    val_dataset = MNIST(phase='val',data_dir=data_dir,ratio=ratio)
+    test_dataset = MNIST(phase='test',data_dir=data_dir,ratio=ratio)
+    
+    train_loader = DataLoader(train_dataset,batch_size=batch_size,shuffle=True)
+    val_loader = DataLoader(val_dataset,batch_size=batch_size,shuffle=False)
+    test_loader = DataLoader(test_dataset,batch_size=batch_size,shuffle=False)
+    
+    return train_loader,val_loader,test_loader
