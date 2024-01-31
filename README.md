@@ -3,17 +3,17 @@ Custom Framework for Image Classification Using Pytorch
 
 ## Tasks 
 
-- [ ] Create a Network using only Dense Layers - FCN 
-- [ ] Create a Network using Conv. Layers 
-- [ ] Use a Pretrained Network - ResNet, VGG , AlexNet 
+- [x] Create a Network using only Dense Layers - FCN 
+- [x] Create a Network using Conv. Layers 
+- [x] Use a Pretrained Network - ResNet, VGG , AlexNet 
 - [ ] Use GAN for Image Classification and Show it can OutPerform LeNet
 
 ## SubTasks 
 
-- [ ] Connect with TensorBoard and WANDB 
-- [ ] Plots for Loss, Accuracy , Confusion Matrix , AUC 
-- [ ] Add LrSchedulers - CosineAnnealing and Linear
-- [ ] Data Distribution Plots 
+- [x] Connect with TensorBoard and WANDB 
+- [x] Plots for Loss, Accuracy , Confusion Matrix 
+- [x] Add LrSchedulers - CosineAnnealing and Linear
+- [x] Data Distribution Plots 
 - [ ] Augmentation Visualization Plots 
 
 ## Future Tasks 
