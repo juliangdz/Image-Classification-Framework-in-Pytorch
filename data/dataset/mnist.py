@@ -1,6 +1,8 @@
 from torch.utils.data import Dataset,DataLoader
 import torchvision
 from data.stratify_logic import train_test_val_split
+import torch
+import matplotlib.pyplot as plt
 
 __all__ = ["load_mnist_dataset"]
 
@@ -39,3 +41,15 @@ def load_mnist_dataset(data_dir:str,ratio:list[0.8,0.1,0.1],transforms=None,batc
     test_loader = DataLoader(test_dataset,batch_size=batch_size,shuffle=False)
     
     return train_loader,val_loader,test_loader
+
+def plot_distribution(dataset):
+    counts = torch.zeros(10, dtype=torch.int32)
+    for _, label in dataset:
+        counts[label] += 1
+    digits = range(10)
+    plt.bar(digits, counts.numpy())
+    plt.xlabel('Digits')
+    plt.ylabel('Frequency')
+    plt.title('Distribution of Digits in Dataset')
+    plt.xticks(digits)
+    plt.show()
