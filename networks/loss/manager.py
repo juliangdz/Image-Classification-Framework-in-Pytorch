@@ -8,7 +8,7 @@ class LossFunctionManager:
         """
         Reads the config dict and returns the corresponding PyTorch loss function.
         """
-        loss_name = config.get('loss_name', 'cross_entropy').lower()
+        loss_name = config.get('name', 'cross_entropy').lower()
 
         if loss_name == 'cross_entropy':
             return nn.CrossEntropyLoss()

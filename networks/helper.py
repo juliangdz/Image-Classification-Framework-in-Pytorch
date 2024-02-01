@@ -1,5 +1,3 @@
-from logger.log_tensorboard import TensorBoardCallback
-from logger.log_wandb import WandBCallback
 import torch
 from data.helper import get_sample_images
 
@@ -44,10 +42,7 @@ def evaluate(model, data_loader, criterion, metrics_manager, device, tensorboard
     return avg_metrics, confusion_mat
 
 
-def train(model, train_loader, val_loader, test_loader, optimizer, criterion, metrics_manager, epochs, device, config, log_interval=10):
-    tensorboard_cb = TensorBoardCallback(log_dir="./logs")
-    wandb_cb = WandBCallback(config)
-
+def train(model,tensorboard_cb,wandb_cb, train_loader, val_loader, test_loader, optimizer, criterion, metrics_manager, epochs, device, log_interval=10):
     # Log initial sample images from training set
     sample_images, sample_labels = get_sample_images(train_loader)
     tensorboard_cb.log_images(sample_images, sample_labels, tag='Train Samples')
@@ -86,6 +81,3 @@ def train(model, train_loader, val_loader, test_loader, optimizer, criterion, me
     wandb_cb.log_test({"Loss/Test": test_metrics['loss'], **test_metrics}, 'final_test')
     tensorboard_cb.log_confusion_matrix(test_confusion_matrix, 'final_test')
     wandb_cb.log_confusion_matrix(test_confusion_matrix, 'final_test')
-
-    tensorboard_cb.close()
-    wandb_cb.finish()

@@ -1,7 +1,37 @@
-# Load the config 
-# Set device and Seed
-# Build and Load the Dataset 
-# Setup logging 
-# Create the necessary directories for logging 
-# Build the Model and Compile 
-# Runner with train and evaluate - closes logging
+from utils.helper import *
+from data.manager import load_dataset
+import argparse
+from networks.runner import runner
+from logger import TensorBoardCallback,WandBCallback
+
+def main(args):
+    config = read_config(args.config_path)
+    # Set Seed and Device
+    set_seed(config['hyperparams']['seed'])
+    device = get_device()
+    # Load Dataset
+    train_loader,val_loader,test_loader,input_shape,num_classes = load_dataset(config)
+    # Setup Loggers
+    log_dir = check_and_create_directory(config['logging']['tensorboard']['logdir'])
+    tensorboard_cb = TensorBoardCallback(log_dir=log_dir)
+    wandb_cb = WandBCallback(config['logging']['wandb'])
+    # Run
+    runner(
+        config=config,
+        tensorboard_cb=tensorboard_cb,
+        wandb_cb=wandb_cb,
+        train_loader=train_loader,
+        val_loader=val_loader,
+        test_loader=test_loader,
+        input_shape=input_shape,
+        num_classes=num_classes,
+        device=device
+    )
+    tensorboard_cb.close()
+    wandb_cb.finish()
+    
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('config_path',default='config.json',type=str,help='Path to config.json')
+    args = parser.parse_args()
+    main(args)

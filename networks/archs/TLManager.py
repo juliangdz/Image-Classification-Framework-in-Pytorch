@@ -1,13 +1,11 @@
 import torch
 import torchvision.models as models
-import torchvision.transforms as transforms
 
 class TLManager: # Transfer Learning Manager
     def __init__(self, model_name:str,num_classes:int):
         self.model_name = model_name
         self.num_classes = num_classes
         self.model = self._get_pretrained_model()
-        self.preprocess = self._get_preprocess_pipeline()
 
     def _get_pretrained_model(self):
         model_func = {
@@ -44,37 +42,5 @@ class TLManager: # Transfer Learning Manager
             
         return model
 
-    def _get_preprocess_pipeline(self):
-        # Basic preprocessing for most models
-        preprocess = transforms.Compose([
-            transforms.Resize(256),
-            transforms.CenterCrop(224),
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-        ])
-
-        # Model-specific adjustments
-        if self.model_name == 'inception_v3':
-            # Inception requires different input size
-            preprocess = transforms.Compose([
-                transforms.Resize(299),
-                transforms.CenterCrop(299),
-                transforms.ToTensor(),
-                transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-            ])
-        
-        elif self.model_name == 'vit':
-            preprocess = transforms.Compose([
-                transforms.Resize(384),  # Resize so the smallest side is 384 pixels
-                transforms.CenterCrop(384),  # Crop to 384x384
-                transforms.ToTensor(),
-                transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-            ])
-
-        return preprocess
-
     def get_model(self):
         return self.model
-
-    def get_preprocess(self):
-        return self.preprocess

@@ -47,7 +47,7 @@ def load_mnist_dataset(data_dir:str,ratio:list[0.8,0.1,0.1],transforms=None,batc
     val_loader = DataLoader(val_dataset,batch_size=batch_size,shuffle=False)
     test_loader = DataLoader(test_dataset,batch_size=batch_size,shuffle=False)
     
-    return train_loader,val_loader,test_loader
+    return train_loader,val_loader,test_loader,train_dataset.num_classes
 
 def infer_input_shape(data_loader):
     # Fetch one batch of data

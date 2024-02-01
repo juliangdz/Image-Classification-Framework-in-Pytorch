@@ -4,6 +4,7 @@ import torchvision.transforms as transforms
 class WandBCallback:
     def __init__(self,config:dict):
         project = config.get('project','Pytorch_MNIST_Classification')
+        wandb.login()
         wandb.init(project=project)
 
     def log(self, data, step):

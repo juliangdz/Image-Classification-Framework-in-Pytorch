@@ -3,20 +3,42 @@
         "dataset":"mnist",
         "data_directory":"downloaded_datasets",
         "ratio":[0.8,0.1,0.1],
-        "batch_size":64,
-        "transforms": [
-            {"name": "Resize", "params": {"height": 256, "width": 256}},
-            {"name": "Normalize", "params": {"mean": [0.485, 0.456, 0.406], "std": [0.229, 0.224, 0.225]}},
-            {"name": "ToTensor"}
-        ]
+        "transforms": {
+            "name":"default",
+            "options":{
+                "default": [
+                    {"name": "Resize", "params": {"height": 256, "width": 256}},
+                    {"name": "CenterCrop", "params": {"height": 224, "width": 224}},
+                    {"name": "Normalize", "params": {"mean": [0.485, 0.456, 0.406], "std": [0.229, 0.224, 0.225]}},
+                    {"name": "ToTensor"}
+                ],
+                "inception_v3": [
+                    {"name": "Resize", "params": {"height": 299, "width": 299}},
+                    {"name": "CenterCrop", "params": {"height": 299, "width": 299}},
+                    {"name": "Normalize", "params": {"mean": [0.485, 0.456, 0.406], "std": [0.229, 0.224, 0.225]}},
+                    {"name": "ToTensor"}
+                ],
+                "vit": [
+                    {"name": "Resize", "params": {"height": 384, "width": 384}},
+                    {"name": "CenterCrop", "params": {"height": 384, "width": 384}},
+                    {"name": "Normalize", "params": {"mean": [0.485, 0.456, 0.406], "std": [0.229, 0.224, 0.225]}},
+                    {"name": "ToTensor"}
+                ]
+            }
+        }
     },
     "hyperparams":{
-        "loss":"cross_entropy",
+        "loss":{
+            "name":"cross_entropy"
+        },
         "optimizer":{
             "optimizer_name":"adamw",
             "learning_rate":0.001
         },
-        "network":"fcn"
+        "network":"fcn",
+        "batch_size":64,
+        "epochs":10,
+        "seed":0
     },
     "networks":{
         "fcn":{
@@ -64,6 +86,7 @@
         "metrics":["accuracy","precision","f1","recall"]
     },
     "logging":{
+        "interval":10,
         "wandb":{
             "project":"Pytorch_MNIST_Classification"
         },

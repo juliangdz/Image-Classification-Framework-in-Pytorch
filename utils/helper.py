@@ -2,6 +2,16 @@ import torch
 import numpy as np
 import random
 import json 
+import os
+
+def check_and_create_directory(path):
+    """Check if a directory exists at the specified path, and create it if it doesn't exist."""
+    if not os.path.exists(path):
+        os.makedirs(path)
+        print(f"Directory created at: {path}")
+    else:
+        print(f"Directory already exists at: {path}")
+    return path
 
 def read_config(config_path='config.json'):
     with open(config_path,"r") as cf:
