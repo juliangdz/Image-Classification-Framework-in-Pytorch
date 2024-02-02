@@ -32,7 +32,7 @@
             "optimizer_name":"adamw",
             "learning_rate":0.001
         },
-        "network":"fcn",
+        "network":"deep_cnn",
         "batch_size":64,
         "epochs":10,
         "seed":0
@@ -42,37 +42,37 @@
             "filters":[512,256,128]
         },
         "deep_cnn":{
-            "cnn":[
+            "cnn": [
                 {
-                    "filters":16,
-                    "kernel_size":3,
-                    "stride":1,
-                    "padding":1,
-                    "pool":2,
-                    "norm":"batch",
-                    "activation":"relu"
+                    "filters": 16,
+                    "kernel_size": 3,
+                    "stride": 1,
+                    "padding": 1,
+                    "pool": 2,
+                    "norm": "batch",
+                    "activation": "relu"
                 },
                 {
-                    "filters":32,
-                    "kernel_size":3,
-                    "stride":1,
-                    "padding":1,
-                    "pool":2,
-                    "norm":"batch",
-                    "activation":"relu"
+                    "filters": 32,
+                    "kernel_size": 3,
+                    "stride": 1,
+                    "padding": 1,
+                    "pool": 2,
+                    "norm": "batch",
+                    "activation": "relu"
                 },
                 {
-                    "filters":64,
-                    "kernel_size":3,
-                    "stride":1,
-                    "padding":1,
-                    "pool":2,
-                    "norm":"batch",
-                    "activation":"relu"
+                    "filters": 64,
+                    "kernel_size": 3,
+                    "stride": 1,
+                    "padding": 1,
+                    "pool": 2,
+                    "norm": "batch",
+                    "activation": "relu"
                 }
             ],
-            "output_layer":{
-                "dropout":0.5
+            "output_layer": {
+                "dropout": 0.5
             }
         },
         "pretrained":{

@@ -4,6 +4,8 @@ import torchvision
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.metrics import ConfusionMatrixDisplay
+from networks.gradcam import GradCAM
+import torch
 
 class TensorBoardCallback:
     def __init__(self, log_dir):
@@ -54,6 +56,66 @@ class TensorBoardCallback:
 
         # Close the figure to free memory
         plt.close(fig)
+    
+    def apply_gradcam_and_log_batch(self,model, images, device, step, tag='GradCAM'):
+        # Assuming `target_layer` is your model's final convolutional layer
+        grad_cam = GradCAM(model, target_layer=model.features[-1])  # Adjust `target_layer` as per your model architecture
+
+        heatmaps = []
+        for i in range(images.size(0)):  # Iterate through each image in the batch
+            input_image = images[i].unsqueeze(0).to(device)  # Add batch dimension
+            heatmap = grad_cam.generate_cam(input_image)
+            # Normalize the heatmap for visualization
+            heatmap = (heatmap - heatmap.min()) / (heatmap.max() - heatmap.min())
+            heatmaps.append(heatmap)
+
+        # Convert the list of heatmaps to a tensor and create a grid
+        heatmap_grid = torchvision.utils.make_grid(torch.stack(heatmaps), nrow=5)  # Adjust nrow as needed
+
+        # Log the heatmap grid to TensorBoard
+        self.writer.add_image(tag, heatmap_grid, global_step=step)
+    
+    def log_feature_maps(self, model, images, step, tag_prefix='FeatureMaps'):
+        """
+        Automatically detect convolutional layers in the model and log their feature maps.
+        :param model: The model being evaluated.
+        :param images: A batch of images to log feature maps for.
+        :param step: The current step in training for logging.
+        :param tag_prefix: Prefix for the TensorBoard tag.
+        """
+        model.eval()  # Ensure the model is in evaluation mode
+
+        activations = []
+        hooks = []
+
+        # Function to register hooks on convolutional layers
+        def register_hooks():
+            for name, layer in model.named_modules():
+                if isinstance(layer, torch.nn.Conv2d):
+                    def hook(module, input, output, name=name):
+                        # Normalize the output for better visualization
+                        # Use global average pooling to reduce the size for visualization
+                        output = torch.mean(output, dim=1, keepdim=True)
+                        activations.append((name, output))
+                    hooks.append(layer.register_forward_hook(hook))
+
+        register_hooks()
+
+        # Forward pass to trigger the hooks and capture activations
+        with torch.no_grad():
+            _ = model(images)
+
+        # Remove hooks
+        for hook in hooks:
+            hook.remove()
+
+        # Log each captured activation
+        for name, activation in activations:
+            # Normalize and make grid
+            grid = torchvision.utils.make_grid(activation, normalize=True, scale_each=True, nrow=4)
+            self.writer.add_image(f'{tag_prefix}/{name}', grid, global_step=step)
+        
+        model.train()  # Set model back to train mode if necessary
 
     def close(self):
         self.writer.close()

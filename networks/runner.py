@@ -16,14 +16,14 @@ def runner(config:dict,train_loader,val_loader,test_loader,input_shape,num_class
             output_shape=num_classes,
             network_config=network_config
         )
-    elif network_config == 'cnn':
+    elif network_name == 'deep_cnn':
         model = CNN(
             input_shape=input_shape,
             output_shape=num_classes,
             network_config=network_config
         )
-    elif network_config == 'pretrained':
-        pretrained_model_name = network_config['pretrained']['name']
+    elif network_name == 'pretrained':
+        pretrained_model_name = network_config['name']
         pretrained_model_manager = TLManager(
             model_name=pretrained_model_name,
             num_classes=num_classes
