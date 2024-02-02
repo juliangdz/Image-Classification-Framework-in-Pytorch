@@ -1,11 +1,38 @@
+import pdb
 import wandb
 import torchvision.transforms as transforms
+import matplotlib.pyplot as plt
+from sklearn.metrics import ConfusionMatrixDisplay
+import numpy as np
+
+def plot_to_image(figure):
+    """Converts the matplotlib plot specified by 'figure' to a PNG image and
+    returns it. The supplied figure is closed and freed from memory."""
+    import io
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png')
+    plt.close(figure)
+    buf.seek(0)
+    return buf
 
 class WandBCallback:
     def __init__(self,config:dict):
-        project = config.get('project','Pytorch_MNIST_Classification')
+        project = config['logging']['wandb']['project']
         wandb.login()
-        wandb.init(project=project)
+        wandb.init(
+            project=project,
+            config={
+                "dataset":config['data']['dataset'],
+                "transforms":config['data']['transforms']['options'][config['data']['transforms']['name']],
+                "criterion":config['hyperparams']['loss'],
+                "optimizer":config['hyperparams']['optimizer'],
+                "network":config['hyperparams']['network'],
+                "batch_size":config['hyperparams']['batch_size'],
+                "epochs":config['hyperparams']['epochs'],
+                "seed":config['hyperparams']['seed'],
+                "network_config":config['networks'][config['hyperparams']['network']]
+            }
+        )
 
     def log(self, data, step):
         wandb.log(data, step=step)
@@ -15,7 +42,25 @@ class WandBCallback:
         wandb.log({tag: images}, step=0)
         
     def log_confusion_matrix(self, matrix, step):
-        wandb.log({"confusion_matrix": wandb.plot.confusion_matrix(matrix, step=step)})
+        # Create a figure for the confusion matrix
+        fig, ax = plt.subplots(figsize=(8, 6))
+        # Display the confusion matrix
+        ConfusionMatrixDisplay(confusion_matrix=matrix, display_labels=np.arange(matrix.shape[0])).plot(values_format='d', cmap='Blues', ax=ax)
+        # Add titles and labels as needed
+        ax.set_title('Confusion Matrix')
+        ax.set_xlabel('Predicted Labels')
+        ax.set_ylabel('True Labels')
+        
+        # Convert the matplotlib figure to an image that wandb can log
+        fig.canvas.draw()  # Draw the figure
+        image = np.frombuffer(fig.canvas.tostring_rgb(), dtype='uint8')
+        image = image.reshape(fig.canvas.get_width_height()[::-1] + (3,))
+        
+        # Log the confusion matrix image to wandb
+        wandb.log({"confusion_matrix": [wandb.Image(image, caption="Confusion Matrix")]}, step=step)
+        
+        # Close the figure to free memory
+        plt.close(fig)
         
     def log_evaluation_images(self, images, predicted_labels, true_labels, tag='Eval Samples', step=0):
         images = [transforms.functional.to_pil_image(image) for image in images]

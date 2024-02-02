@@ -42,6 +42,8 @@ def runner(config:dict,train_loader,val_loader,test_loader,input_shape,num_class
     
     log_interval = config['logging']['interval']
     
+    model = model.to(device)
+    
     train(
         model=model,
         tensorboard_cb=tensorboard_cb,

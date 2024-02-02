@@ -45,15 +45,14 @@ class MetricsManager:
         return f1_score(targets, preds, average='macro')
     
     def compute_confusion_matrix(self, predictions, targets):
-        preds = torch.argmax(predictions, dim=1).cpu().numpy()
-        targets = targets.cpu().numpy()
-        return confusion_matrix(targets, preds)
+        # Since predictions and targets are already numpy arrays, we can directly use them
+        return confusion_matrix(targets, predictions)
 
-    def compute_metrics(self, predictions, targets):
+    def compute_metrics(self, predictions, targets,phase='Train'):
         """
         Computes all the metrics specified in the config.
         """
-        return {metric.__name__: metric(predictions, targets) for metric in self.metrics}
+        return {f'{phase}/{metric.__name__}': metric(predictions, targets) for metric in self.metrics}
 
 # Example usage:
 # config = {'metrics': ['accuracy', 'precision', 'recall']}

@@ -1,23 +1,29 @@
 import torch
 from data.helper import get_sample_images
+from tqdm import tqdm
+import numpy as np 
 
 def evaluate(model, data_loader, criterion, metrics_manager, device, tensorboard_cb, wandb_cb, step, tag='Eval'):
     model.eval()
     total_loss = 0
-    all_metrics = {metric: 0 for metric in metrics_manager.metrics}
+    all_metrics = {}
     all_preds, all_targets, all_images = [], [], []
-    log_images = True  # Flag to log images only once
+    log_images = True
 
     with torch.no_grad():
-        for data, target in data_loader:
+        progress_bar = tqdm(data_loader, desc=f"{tag}", leave=False)  # tqdm progress bar for evaluation
+        for data, target in progress_bar:
             data, target = data.to(device), target.to(device)
             output = model(data)
             loss = criterion(output, target)
             total_loss += loss.item()
 
-            metrics = metrics_manager.compute_metrics(output, target)
+            metrics = metrics_manager.compute_metrics(output, target,tag)
             for key, value in metrics.items():
-                all_metrics[key] += value
+                try:
+                    all_metrics[key] += value
+                except Exception:
+                    all_metrics[key]=value
 
             preds = torch.argmax(output, dim=1)
             all_preds.append(preds.cpu().numpy())
@@ -25,9 +31,8 @@ def evaluate(model, data_loader, criterion, metrics_manager, device, tensorboard
 
             if log_images:
                 all_images.extend(data.cpu())
-                log_images = False  # Set to False after first batch
+                log_images = False
 
-    # Log evaluation images with predictions and true labels
     if all_images:
         tensorboard_cb.log_evaluation_images(torch.stack(all_images), all_preds[0], all_targets[0], step, tag)
         wandb_cb.log_evaluation_images(torch.stack(all_images), all_preds[0], all_targets[0], tag, step)
@@ -37,22 +42,19 @@ def evaluate(model, data_loader, criterion, metrics_manager, device, tensorboard
     avg_metrics = {k: v / num_batches for k, v in all_metrics.items()}
     avg_metrics['loss'] = avg_loss
 
-    # Compute confusion matrix
-    confusion_mat = metrics_manager.compute_confusion_matrix(torch.cat(all_preds), torch.cat(all_targets))
+    confusion_mat = metrics_manager.compute_confusion_matrix(np.concatenate(all_preds), np.concatenate(all_targets))
     return avg_metrics, confusion_mat
 
 
-def train(model,tensorboard_cb,wandb_cb, train_loader, val_loader, test_loader, optimizer, criterion, metrics_manager, epochs, device, log_interval=10):
-    # Log initial sample images from training set
+def train(model, tensorboard_cb, wandb_cb, train_loader, val_loader, test_loader, optimizer, criterion, metrics_manager, epochs, device, log_interval=10):
     sample_images, sample_labels = get_sample_images(train_loader)
     tensorboard_cb.log_images(sample_images, sample_labels, tag='Train Samples')
     wandb_cb.log_images(sample_images, sample_labels, tag='Train Samples')
-
     for epoch in range(epochs):
         model.train()
         total_loss = 0
-
-        for batch_idx, (data, target) in enumerate(train_loader):
+        progress_bar = tqdm(enumerate(train_loader), total=len(train_loader), desc=f"Epoch {epoch+1}/{epochs}", leave=False)  # tqdm progress bar
+        for batch_idx, (data, target) in progress_bar:
             data, target = data.to(device), target.to(device)
             optimizer.zero_grad()
             output = model(data)
@@ -64,20 +66,21 @@ def train(model,tensorboard_cb,wandb_cb, train_loader, val_loader, test_loader, 
 
             if batch_idx % log_interval == 0:
                 step = epoch * len(train_loader) + batch_idx
-                metrics = metrics_manager.compute_metrics(output, target)
+                metrics = metrics_manager.compute_metrics(output, target,'Train')
+                # Update progress bar with loss information
+                progress_bar.set_postfix({'loss': loss.item()})
                 tensorboard_cb.log_training(loss.item(), metrics, step)
                 wandb_cb.log({"Loss/Train": loss.item(), **metrics}, step)
+        
+        total_training_steps = (epoch + 1) * len(train_loader)
+        val_metrics, val_confusion_matrix = evaluate(model, val_loader, criterion, metrics_manager, device, tensorboard_cb, wandb_cb, total_training_steps, tag='Val')
+        tensorboard_cb.log_validation(val_metrics['loss'], val_metrics, total_training_steps)
+        wandb_cb.log({"Loss/Val": val_metrics['loss'], **val_metrics}, total_training_steps)
+        tensorboard_cb.log_confusion_matrix(val_confusion_matrix, total_training_steps)
+        wandb_cb.log_confusion_matrix(val_confusion_matrix, total_training_steps)
 
-        # Evaluate on validation data
-        val_metrics, val_confusion_matrix = evaluate(model, val_loader, criterion, metrics_manager, device, tensorboard_cb, wandb_cb, epoch, tag='Validation')
-        tensorboard_cb.log_validation(val_metrics['loss'], val_metrics, epoch)
-        wandb_cb.log({"Loss/Val": val_metrics['loss'], **val_metrics}, epoch)
-        tensorboard_cb.log_confusion_matrix(val_confusion_matrix, epoch)
-        wandb_cb.log_confusion_matrix(val_confusion_matrix, epoch)
-
-    # Evaluate on test data after all epochs
-    test_metrics, test_confusion_matrix = evaluate(model, test_loader, criterion, metrics_manager, device, tensorboard_cb, wandb_cb, 'final_test', tag='Test')
-    tensorboard_cb.log_test(test_metrics['loss'], test_metrics, 'final_test')
-    wandb_cb.log_test({"Loss/Test": test_metrics['loss'], **test_metrics}, 'final_test')
-    tensorboard_cb.log_confusion_matrix(test_confusion_matrix, 'final_test')
-    wandb_cb.log_confusion_matrix(test_confusion_matrix, 'final_test')
+    test_metrics, test_confusion_matrix = evaluate(model, test_loader, criterion, metrics_manager, device, tensorboard_cb, wandb_cb, total_training_steps, tag='Test')
+    tensorboard_cb.log_test(test_metrics['loss'], test_metrics, total_training_steps)
+    wandb_cb.log_test({"Loss/Test": test_metrics['loss'], **test_metrics}, total_training_steps)
+    tensorboard_cb.log_confusion_matrix(test_confusion_matrix, total_training_steps)
+    wandb_cb.log_confusion_matrix(test_confusion_matrix, total_training_steps)

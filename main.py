@@ -14,7 +14,7 @@ def main(args):
     # Setup Loggers
     log_dir = check_and_create_directory(config['logging']['tensorboard']['logdir'])
     tensorboard_cb = TensorBoardCallback(log_dir=log_dir)
-    wandb_cb = WandBCallback(config['logging']['wandb'])
+    wandb_cb = WandBCallback(config)
     # Run
     runner(
         config=config,

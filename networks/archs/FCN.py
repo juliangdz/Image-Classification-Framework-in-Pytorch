@@ -1,3 +1,4 @@
+import pdb
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -24,7 +25,7 @@ class FCN(nn.Module):
 
     def forward(self, x):
         # Flatten the input
-        x = x.view(-1, self.input_shape)
+        x = x.view(-1, torch.prod(torch.tensor(self.input_shape)).item())
         for layer in self.layers:
             x = layer(x)
         return F.log_softmax(x, dim=1)

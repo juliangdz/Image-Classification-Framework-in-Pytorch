@@ -1,6 +1,9 @@
 import torchvision
 from torch.utils.tensorboard import SummaryWriter
 import torchvision
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.metrics import ConfusionMatrixDisplay
 
 class TensorBoardCallback:
     def __init__(self, log_dir):
@@ -37,7 +40,20 @@ class TensorBoardCallback:
             self.writer.add_scalar(f'{key}/Test', value, step)
             
     def log_confusion_matrix(self, matrix, step):
-        self.writer.add_figure('Confusion Matrix', matrix, step)
+        # Create a figure for the confusion matrix
+        fig, ax = plt.subplots(figsize=(8, 6))
+        # Display the confusion matrix
+        ConfusionMatrixDisplay(confusion_matrix=matrix, display_labels=np.arange(matrix.shape[0])).plot(values_format='d', cmap='Blues', ax=ax)
+        # Add titles and labels as needed
+        ax.set_title('Confusion Matrix')
+        ax.set_xlabel('Predicted Labels')
+        ax.set_ylabel('True Labels')
+        
+        # Now, you can log the figure to TensorBoard
+        self.writer.add_figure('Confusion Matrix', fig, step)
+
+        # Close the figure to free memory
+        plt.close(fig)
 
     def close(self):
         self.writer.close()
