@@ -29,8 +29,8 @@
             "name":"cross_entropy"
         },
         "optimizer":{
-            "optimizer_name":"adamw",
-            "learning_rate":0.001
+            "optimizer_name":"sgd",
+            "learning_rate":0.0001
         },
         "network":"deep_cnn",
         "batch_size":64,
@@ -44,25 +44,7 @@
         "deep_cnn":{
             "cnn": [
                 {
-                    "filters": 16,
-                    "kernel_size": 3,
-                    "stride": 1,
-                    "padding": 1,
-                    "pool": 2,
-                    "norm": "batch",
-                    "activation": "relu"
-                },
-                {
-                    "filters": 32,
-                    "kernel_size": 3,
-                    "stride": 1,
-                    "padding": 1,
-                    "pool": 2,
-                    "norm": "batch",
-                    "activation": "relu"
-                },
-                {
-                    "filters": 64,
+                    "filters": 128,
                     "kernel_size": 3,
                     "stride": 1,
                     "padding": 1,
@@ -72,11 +54,11 @@
                 }
             ],
             "output_layer": {
-                "dropout": 0.5
+                "dropout": 0.1
             }
         },
         "pretrained":{
-            "name":"resnet18"
+            "name":"googlenet"
         }
     },
     "evaluation":{
