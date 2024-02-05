@@ -64,9 +64,15 @@ class WandBCallback:
         # Close the figure to free memory
         plt.close(fig)
         
-    def apply_gradcam_and_log_batch(self, model, images, device, step, tag='GradCAM'):
-        # Assuming `target_layer` is your model's final convolutional layer
-        grad_cam = GradCAM(model, target_layer=model.features[-1])  # Adjust `target_layer` as per your model architecture
+    def apply_gradcam_and_log_batch(self, model, images, device, step, target_layer=None, tag='GradCAM'):
+        if hasattr(model, 'features') and isinstance(model.features, nn.Sequential):
+            # If the model has a 'features' attribute and it's an nn.Sequential,
+            # assume it's a pretrained model and use the last layer from 'features'.
+            target_layer = model.features[-1]
+        elif target_layer is None:
+            raise ValueError("Please specify the target_layer for custom models.")
+
+        grad_cam = GradCAM(model, target_layer=target_layer)
 
         heatmaps = []
         for i in range(images.size(0)):  # Iterate through each image in the batch
