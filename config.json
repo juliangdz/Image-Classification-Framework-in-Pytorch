@@ -42,20 +42,15 @@
             "filters":[512,256,128]
         },
         "deep_cnn":{
-            "cnn": [
-                {
-                    "filters": 128,
-                    "kernel_size": 3,
-                    "stride": 1,
-                    "padding": 1,
-                    "pool": 2,
-                    "norm": "batch",
-                    "activation": "relu"
-                }
-            ],
-            "output_layer": {
-                "dropout": 0.1
-            }
+            "layers": [
+                {"type": "conv2d", "filters": 8, "kernel_size": 5, "stride": 1},
+                {"type": "maxpool2d", "pool_size": 2, "stride": 2},
+                {"type": "conv2d", "filters": 16, "kernel_size": 5, "stride": 1},
+                {"type": "maxpool2d", "pool_size": 2, "stride": 2},
+                {"type": "flatten", "kernel_size": 5, "stride": 1}, 
+                {"type": "linear", "in_features": "auto", "out_features": 128},  
+                {"type": "dropout", "rate": 0.2}
+            ]
         },
         "pretrained":{
             "name":"googlenet"

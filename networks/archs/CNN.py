@@ -1,50 +1,58 @@
-import torch 
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
 class CNN(nn.Module):
-    def __init__(self, input_shape: tuple, output_shape: int, network_config: dict) -> None:
+    def __init__(self, input_shape, output_shape, network_config):
         super(CNN, self).__init__()
-        self.input_shape = input_shape
-        layers = []
+        H, W, C = input_shape  # Unpacking the input shape
 
-        current_channels = input_shape[2]  # Assuming input_shape is ( H, W,C)
+        self.layers = nn.ModuleList()
+        current_channels = C  # Starting with the input channels
+        fc_size = None  # To store the dynamically calculated size for the fully connected layer
 
-        for block_config in network_config['cnn']:
-            # Convolutional layer
-            layers.append(nn.Conv2d(
-                in_channels=current_channels,
-                out_channels=block_config['filters'],
-                kernel_size=block_config['kernel_size'],
-                stride=block_config['stride'],
-                padding=block_config['padding']
-            ))
-            current_channels = block_config['filters']
+        for layer_config in network_config['layers']:
+            if layer_config['type'] == 'conv2d':
+                self.layers.append(nn.Conv2d(
+                    in_channels=current_channels,
+                    out_channels=layer_config['filters'],
+                    kernel_size=layer_config['kernel_size'],
+                    stride=layer_config['stride']
+                ))
+                # Adjust dimensions
+                H = (H - layer_config['kernel_size']) // layer_config['stride'] + 1
+                W = (W - layer_config['kernel_size']) // layer_config['stride'] + 1
+                current_channels = layer_config['filters']
+            elif layer_config['type'] == 'maxpool2d':
+                self.layers.append(nn.MaxPool2d(
+                    kernel_size=layer_config['pool_size'],
+                    stride=layer_config['stride']
+                ))
+                # Adjust dimensions
+                H = (H - layer_config['pool_size']) // layer_config['stride'] + 1
+                W = (W - layer_config['pool_size']) // layer_config['stride'] + 1
+            elif layer_config['type'] == 'flatten':
+                self.layers.append(nn.Flatten())
+                fc_size = H * W * current_channels  # Calculate the size for the fully connected layer
+            elif layer_config['type'] == 'linear':
+                if fc_size is None:
+                    raise ValueError("FC layer size not calculated. Check the layer order.")
+                # Use the calculated fc_size for in_features
+                self.layers.append(nn.Linear(
+                    in_features=fc_size,
+                    out_features=layer_config['out_features']
+                ))
+                fc_size = None  # Reset fc_size if your network has multiple linear layers
+                current_channels = layer_config['out_features']  # Update for potentially more linear layers
+            elif layer_config['type'] == 'dropout':
+                self.layers.append(nn.Dropout(layer_config['rate']))
 
-            # Normalization layer (if specified)
-            if block_config.get('norm') == 'batch':
-                layers.append(nn.BatchNorm2d(current_channels))
-
-            # Activation - Assuming 'relu' for simplicity; extend as needed
-            if block_config.get('activation') == 'relu':
-                layers.append(nn.ReLU(inplace=True))
-
-            # Pooling layer (if specified)
-            if 'pool' in block_config:
-                layers.append(nn.MaxPool2d(kernel_size=block_config['pool']))
-
-        # Adaptive pooling layer to ensure the output is flattened to a vector
-        layers.append(nn.AdaptiveAvgPool2d((1, 1)))
-
-        self.conv_layers = nn.Sequential(*layers)
-
-        # Fully connected layer
-        self.dropout = nn.Dropout(network_config['output_layer']['dropout'])
-        self.fc = nn.Linear(current_channels, output_shape)  # current_channels is the output of the last conv layer
+        if fc_size is not None:  # If fc_size is calculated and not used, add the final layer
+            self.layers.append(nn.Linear(fc_size, output_shape))
+        else:
+            self.layers.append(nn.Linear(current_channels, output_shape))
 
     def forward(self, x):
-        x = self.conv_layers(x)
-        x = torch.flatten(x, 1)  # Flatten all dimensions except batch
-        x = self.dropout(x)  # Apply dropout before the fully connected layer
-        x = self.fc(x)
+        for layer in self.layers:
+            x = layer(x)
         return F.log_softmax(x, dim=1)
