@@ -1,3 +1,4 @@
+import pdb
 import torch
 from data.helper import get_sample_images
 from tqdm import tqdm
@@ -91,5 +92,5 @@ def train(model, tensorboard_cb, wandb_cb, train_loader, val_loader, test_loader
     
     # apply gradcam 
     test_images, test_labels = get_sample_images(test_loader)
-    tensorboard_cb.apply_gradcam_and_log_batch(model,test_images,device,total_training_steps,tag='Test/GradCam')
-    wandb_cb.apply_gradcam_and_log_batch(model,test_images,device,total_training_steps,tag='Test/GradCam')
+    # tensorboard_cb.apply_gradcam_and_log_batch(model,test_images,device,total_training_steps,tag='Test/GradCam')
+    wandb_cb.apply_gradcam_and_log_batch(model,test_images,device,total_training_steps,tag='Test/GradCam') # comment out if using no conv layers

@@ -32,12 +32,12 @@
             "name":"cross_entropy"
         },
         "optimizer":{
-            "optimizer_name":"adam",
+            "optimizer_name":"sgd",
             "learning_rate":0.01
         },
         "network":"deep_cnn",
         "batch_size":64,
-        "epochs":5,
+        "epochs":50,
         "seed":0
     },
     "networks":{
@@ -47,14 +47,17 @@
         "deep_cnn":{
             "layers": [
                 {"type": "conv2d", "filters": 8, "kernel_size": 5, "stride": 1},
+                {"type": "conv2d", "filters": 8, "kernel_size": 5, "stride": 1, "batchnorm": true},
                 {"type": "maxpool2d", "pool_size": 2, "stride": 2},
                 {"type": "conv2d", "filters": 16, "kernel_size": 5, "stride": 1},
+                {"type": "conv2d", "filters": 16, "kernel_size": 5, "stride": 1, "batchnorm": true},
                 {"type": "maxpool2d", "pool_size": 2, "stride": 2},
                 {"type": "conv2d", "filters": 32, "kernel_size": 5, "stride": 1},
+                {"type": "conv2d", "filters": 32, "kernel_size": 5, "stride": 1, "batchnorm": true},
                 {"type": "maxpool2d", "pool_size": 2, "stride": 2},
                 {"type": "flatten", "kernel_size": 5, "stride": 1}, 
                 {"type": "linear", "in_features": "auto", "out_features": 128},  
-                {"type": "dropout", "rate": 0.2}
+                {"type": "dropout", "rate": 0.8}
             ]
         },
         "pretrained":{

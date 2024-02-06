@@ -19,6 +19,11 @@ class CNN(nn.Module):
                     kernel_size=layer_config['kernel_size'],
                     stride=layer_config['stride']
                 ))
+                # Optionally add BatchNorm here if specified in layer_config
+                if layer_config.get('batchnorm', False):
+                    self.layers.append(nn.BatchNorm2d(num_features=layer_config['filters']))
+                # Add ReLU activation here
+                self.layers.append(nn.ReLU(inplace=True))
                 # Adjust dimensions
                 H = (H - layer_config['kernel_size']) // layer_config['stride'] + 1
                 W = (W - layer_config['kernel_size']) // layer_config['stride'] + 1
@@ -37,7 +42,6 @@ class CNN(nn.Module):
             elif layer_config['type'] == 'linear':
                 if fc_size is None:
                     raise ValueError("FC layer size not calculated. Check the layer order.")
-                # Use the calculated fc_size for in_features
                 self.layers.append(nn.Linear(
                     in_features=fc_size,
                     out_features=layer_config['out_features']
@@ -54,5 +58,5 @@ class CNN(nn.Module):
 
     def forward(self, x):
         for layer in self.layers:
-            x = layer(x)
+            x = layer(x)  # Apply each layer's operation in sequence
         return F.log_softmax(x, dim=1)

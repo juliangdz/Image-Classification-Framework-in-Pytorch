@@ -1,4 +1,5 @@
 from networks.gradcam import GradCAM
+import pdb
 import torchvision
 import torch
 import wandb
@@ -64,16 +65,8 @@ class WandBCallback:
         # Close the figure to free memory
         plt.close(fig)
         
-    def apply_gradcam_and_log_batch(self, model, images, device, step, target_layer=None, tag='GradCAM'):
-        if hasattr(model, 'features') and isinstance(model.features, nn.Sequential):
-            # If the model has a 'features' attribute and it's an nn.Sequential,
-            # assume it's a pretrained model and use the last layer from 'features'.
-            target_layer = model.features[-1]
-        elif target_layer is None:
-            raise ValueError("Please specify the target_layer for custom models.")
-
-        grad_cam = GradCAM(model, target_layer=target_layer)
-
+    def apply_gradcam_and_log_batch(self, model, images, device, step, tag='GradCAM'):
+        grad_cam = GradCAM(model)
         heatmaps = []
         for i in range(images.size(0)):  # Iterate through each image in the batch
             input_image = images[i].unsqueeze(0).to(device)  # Add batch dimension
@@ -81,15 +74,14 @@ class WandBCallback:
             # Normalize the heatmap for visualization
             heatmap = (heatmap - heatmap.min()) / (heatmap.max() - heatmap.min())
             heatmaps.append(heatmap)
-
         # Convert the list of heatmaps to a tensor and create a grid
         heatmap_grid = torchvision.utils.make_grid(torch.stack(heatmaps), nrow=5)  # Adjust nrow as needed
 
         # Convert the heatmap grid to a NumPy array
-        heatmap_grid_np = heatmap_grid.permute(1, 2, 0).mul(255).clamp(0, 255).byte().cpu().numpy()
+        heatmap_grid_np = heatmap_grid.mul(255).clamp(0, 255).byte().cpu().numpy()
 
         # Log the heatmap grid to WandB as an image
-        wandb.log({tag: [wandb.Image(heatmap_grid_np, caption=f'GradCAM Heatmaps for Step {step}')]}, step=step)
+        wandb.log({tag: [wandb.Image(hmap, caption=f'GradCAM Heatmaps') for hmap in heatmap_grid_np]}, step=step)
         
     def log_evaluation_images(self, images, predicted_labels, true_labels, tag='Eval Samples', step=0):
         images = [transforms.functional.to_pil_image(image) for image in images]
