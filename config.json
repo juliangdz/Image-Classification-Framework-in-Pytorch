@@ -70,10 +70,10 @@
     "logging":{
         "interval":10,
         "wandb":{
-            "project":"Pytorch_MNIST_Classification"
+            "project":"MNIST_Classification"
         },
         "tensorboard":{
-            "logdir":"tensorboard_logs"
+            "logdir":"fnc_tensorboard_log"
         }
     }
     

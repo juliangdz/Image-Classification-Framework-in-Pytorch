@@ -44,6 +44,8 @@ def runner(config:dict,train_loader,val_loader,test_loader,input_shape,num_class
     
     model = model.to(device)
     
+    tensorboard_cb.log_model_architecture(model, input_size=input_shape)
+    
     train(
         model=model,
         tensorboard_cb=tensorboard_cb,

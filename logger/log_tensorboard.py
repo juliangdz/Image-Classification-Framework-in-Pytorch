@@ -31,6 +31,10 @@ class TensorBoardCallback:
         img_grid = torchvision.utils.make_grid(images)
         self.writer.add_image(tag, img_grid, step)
         self.writer.add_text(tag + '_labels', ', '.join(label_grid), step)
+    
+    def log_model_architecture(self, model, input_size):
+        example_input = torch.rand(input_size).to(next(model.parameters()).device)  
+        self.writer.add_graph(model, example_input)
 
     def log_model_parameters(self, model, step):
         for name, param in model.named_parameters():
