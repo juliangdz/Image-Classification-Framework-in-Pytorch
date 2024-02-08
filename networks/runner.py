@@ -5,6 +5,7 @@ from networks.metrics.manager import MetricsManager
 from networks.archs.CNN import CNN
 from networks.archs.FCN import FCN
 from networks.archs.TLManager import TLManager
+from torchsummary import summary
 
 def runner(config:dict,train_loader,val_loader,test_loader,input_shape,num_classes,tensorboard_cb,wandb_cb,device):
     network_name = config['hyperparams']['network']
@@ -31,6 +32,8 @@ def runner(config:dict,train_loader,val_loader,test_loader,input_shape,num_class
         model = pretrained_model_manager.get_model()
     else:
         raise ValueError(f'{network_name} - Invalid Network Name')
+
+    summary(model,input_shape)
     
     optimizer_manager = OptimizerManager(model,config['hyperparams']['optimizer'])
     optimizer_func = optimizer_manager.optimizer
@@ -45,6 +48,7 @@ def runner(config:dict,train_loader,val_loader,test_loader,input_shape,num_class
     model = model.to(device)
     
     tensorboard_cb.log_model_architecture(model, input_size=input_shape)
+    wandb_cb.log_model_graph(model, input_size=input_shape)
     
     train(
         model=model,

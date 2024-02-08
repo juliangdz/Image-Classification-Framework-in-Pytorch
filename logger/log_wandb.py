@@ -7,6 +7,7 @@ import torchvision.transforms as transforms
 import matplotlib.pyplot as plt
 from sklearn.metrics import ConfusionMatrixDisplay
 import numpy as np
+from logger.model_logger import generate_model_graph,dot_to_image
 
 def plot_to_image(figure):
     """Converts the matplotlib plot specified by 'figure' to a PNG image and
@@ -64,7 +65,13 @@ class WandBCallback:
         
         # Close the figure to free memory
         plt.close(fig)
-        
+    
+    def log_model_graph(self, model, input_size, step=0):
+        dummy_tensor = torch.rand(1, input_size[0], input_size[1], input_size[2])
+        dot = generate_model_graph(model, dummy_tensor)
+        image_path = dot.render(format='png')  # This will save the image and return the path
+        wandb.log({"Model Graph": wandb.Image(image_path)}, step=step)
+    
     def apply_gradcam_and_log_batch(self, model, images, device, step, tag='GradCAM'):
         grad_cam = GradCAM(model)
         heatmaps = []

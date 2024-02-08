@@ -35,9 +35,9 @@
             "optimizer_name":"sgd",
             "learning_rate":0.01
         },
-        "network":"deep_cnn",
+        "network":"fcn",
         "batch_size":64,
-        "epochs":50,
+        "epochs":10,
         "seed":0
     },
     "networks":{
@@ -73,7 +73,7 @@
             "project":"MNIST_Classification"
         },
         "tensorboard":{
-            "logdir":"fnc_tensorboard_log"
+            "logdir":"fcn_tensorboard_log"
         }
     }
     

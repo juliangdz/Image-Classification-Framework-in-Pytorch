@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import ConfusionMatrixDisplay
 from networks.gradcam import GradCAM
 import torch
+from logger.model_logger import generate_model_graph,dot_to_image
+
 
 class TensorBoardCallback:
     def __init__(self, log_dir):
@@ -35,7 +37,7 @@ class TensorBoardCallback:
     def log_model_architecture(self, model, input_size):
         example_input = torch.rand(input_size).to(next(model.parameters()).device)  
         self.writer.add_graph(model, example_input)
-
+    
     def log_model_parameters(self, model, step):
         for name, param in model.named_parameters():
             self.writer.add_histogram(name, param, step)
