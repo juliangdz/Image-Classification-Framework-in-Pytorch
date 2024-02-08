@@ -162,4 +162,4 @@ cython_debug/
 downloaded_datasets
 tensorboard_logs
 wandb
-
+*_tensorboard_log

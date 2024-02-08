@@ -35,7 +35,7 @@
             "optimizer_name":"sgd",
             "learning_rate":0.01
         },
-        "network":"fcn",
+        "network":"pretrained",
         "batch_size":64,
         "epochs":10,
         "seed":0
@@ -61,7 +61,7 @@
             ]
         },
         "pretrained":{
-            "name":"googlenet"
+            "name":"resnet18"
         }
     },
     "evaluation":{
@@ -73,7 +73,7 @@
             "project":"MNIST_Classification"
         },
         "tensorboard":{
-            "logdir":"fcn_tensorboard_log"
+            "logdir":"resnet18_tensorboard_log"
         }
     }
     

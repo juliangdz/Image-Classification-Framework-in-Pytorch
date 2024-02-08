@@ -33,7 +33,10 @@ def runner(config:dict,train_loader,val_loader,test_loader,input_shape,num_class
     else:
         raise ValueError(f'{network_name} - Invalid Network Name')
 
-    summary(model,input_shape)
+    if network_name != 'fcn':
+        summary(model,(input_shape[2],input_shape[0],input_shape[1]))
+    else:
+        summary(model,input_shape)
     
     optimizer_manager = OptimizerManager(model,config['hyperparams']['optimizer'])
     optimizer_func = optimizer_manager.optimizer
@@ -47,8 +50,12 @@ def runner(config:dict,train_loader,val_loader,test_loader,input_shape,num_class
     
     model = model.to(device)
     
-    tensorboard_cb.log_model_architecture(model, input_size=input_shape)
-    wandb_cb.log_model_graph(model, input_size=input_shape)
+    if network_name != 'fcn':
+        tensorboard_cb.log_model_architecture(model, input_size=(1,input_shape[2],input_shape[0],input_shape[1]))
+        wandb_cb.log_model_graph(model, input_size=(input_shape[2],input_shape[0],input_shape[1]))
+    else:
+        tensorboard_cb.log_model_architecture(model, input_size=input_shape)
+        wandb_cb.log_model_graph(model, input_size=input_shape)
     
     train(
         model=model,
