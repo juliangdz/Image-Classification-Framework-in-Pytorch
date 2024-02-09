@@ -4,6 +4,7 @@ from networks.optim.manager import OptimizerManager
 from networks.metrics.manager import MetricsManager
 from networks.archs.CNN import CNN
 from networks.archs.FCN import FCN
+from networks.archs.LeNet import LeNet5
 from networks.archs.TLManager import TLManager
 from torchsummary import summary
 
@@ -22,6 +23,11 @@ def runner(config:dict,train_loader,val_loader,test_loader,input_shape,num_class
             input_shape=input_shape,
             output_shape=num_classes,
             network_config=network_config
+        )
+    elif network_name == 'lenet':
+        model = LeNet5(
+            input_shape=input_shape,
+            output_shape=num_classes
         )
     elif network_name == 'pretrained':
         pretrained_model_name = network_config['name']

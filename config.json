@@ -35,7 +35,7 @@
             "optimizer_name":"sgd",
             "learning_rate":0.01
         },
-        "network":"pretrained",
+        "network":"lenet",
         "batch_size":64,
         "epochs":10,
         "seed":0
@@ -62,6 +62,9 @@
         },
         "pretrained":{
             "name":"resnet18"
+        },
+        "lenet":{
+            "name":"lenet5"
         }
     },
     "evaluation":{
