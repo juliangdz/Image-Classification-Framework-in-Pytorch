@@ -47,7 +47,7 @@ def evaluate(model, data_loader, criterion, metrics_manager, device, tensorboard
     return avg_metrics, confusion_mat
 
 
-def train(model, tensorboard_cb, wandb_cb, train_loader, val_loader, test_loader, optimizer, criterion, metrics_manager, epochs, device, log_interval=10):
+def train(network_name,model, tensorboard_cb, wandb_cb, train_loader, val_loader, test_loader, optimizer, criterion, metrics_manager, epochs, device, log_interval=10):
     sample_images, sample_labels = get_sample_images(train_loader)
     tensorboard_cb.log_images(sample_images, sample_labels, tag='Train Samples')
     wandb_cb.log_images(sample_images, sample_labels, tag='Train Samples')
@@ -74,8 +74,9 @@ def train(model, tensorboard_cb, wandb_cb, train_loader, val_loader, test_loader
                 wandb_cb.log({"Loss/Train": loss.item(), **metrics}, step)
                 tensorboard_cb.log_model_parameters(model, step)
                 
-                sample_images, _ = get_sample_images(train_loader)  
-                tensorboard_cb.log_feature_maps(model, sample_images.to(device), step)
+                if network_name != 'fcn':
+                    sample_images, _ = get_sample_images(train_loader)  
+                    tensorboard_cb.log_feature_maps(model, sample_images.to(device), step)
         
         total_training_steps = (epoch + 1) * len(train_loader)
         val_metrics, val_confusion_matrix = evaluate(model, val_loader, criterion, metrics_manager, device, tensorboard_cb, wandb_cb, total_training_steps, tag='Val')
@@ -90,7 +91,7 @@ def train(model, tensorboard_cb, wandb_cb, train_loader, val_loader, test_loader
     tensorboard_cb.log_confusion_matrix(test_confusion_matrix, total_training_steps)
     wandb_cb.log_confusion_matrix(test_confusion_matrix, total_training_steps)
     
-    # apply gradcam 
-    test_images, test_labels = get_sample_images(test_loader)
-    # tensorboard_cb.apply_gradcam_and_log_batch(model,test_images,device,total_training_steps,tag='Test/GradCam')
-    wandb_cb.apply_gradcam_and_log_batch(model,test_images,device,total_training_steps,tag='Test/GradCam') # comment out if using no conv layers
+    if network_name != 'fcn':
+        # apply gradcam 
+        test_images, test_labels = get_sample_images(test_loader)
+        wandb_cb.apply_gradcam_and_log_batch(model,test_images,device,total_training_steps,tag='Test/GradCam') # comment out if using no conv layers

@@ -64,6 +64,7 @@ def runner(config:dict,train_loader,val_loader,test_loader,input_shape,num_class
         wandb_cb.log_model_graph(model, input_size=input_shape)
     
     train(
+        network_name=network_name,
         model=model,
         tensorboard_cb=tensorboard_cb,
         wandb_cb=wandb_cb,
