@@ -1,5 +1,3 @@
-Here's how you could structure the markdown for your project description to make it more professional and visually appealing:
-
 # Image-Classification-Framework-in-Pytorch
 
 - **Student ID**: 437451
@@ -85,4 +83,4 @@ For LeNet-5, update `config.json` accordingly:
 
 ## WANDB Report
 
-The extensive Wandb report can be found [here](https://wandb.ai/juliangeralddcruz/MNIST_Classification/reports/MNIST-Classification---Vmlldzo2Nzc2MDM0?accessToken=gwapdhbigkw7e6h35v0ij2xsptv2vcn8jri5fnl82jv6yekpeer2wi1ly5wiw6jp).
+The extensive Wandb report can be found [here](https://api.wandb.ai/links/juliangeralddcruz/uuvl61p8).
