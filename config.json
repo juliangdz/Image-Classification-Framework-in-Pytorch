@@ -1,83 +1,214 @@
-{   
-    "data":{
-        "dataset":"mnist",
-        "data_directory":"downloaded_datasets",
-        "ratio":[0.8,0.1,0.1],
+{
+    "experiment": {
+        "experiment_name": "testing_experiment",
+        "experiment_dir": "experiments/testing_experiment"
+    },
+    "data": {
+        "dataset": "mnist",
+        "data_directory": "downloaded_datasets",
+        "ratio": [
+            0.8,
+            0.1,
+            0.1
+        ],
         "transforms": {
-            "name":"default",
-            "options":{
+            "name": "default",
+            "options": {
                 "default": [
-                    {"name": "Resize", "params": {"height": 256, "width": 256}},
-                    {"name": "CenterCrop", "params": {"height": 224, "width": 224}},
-                    {"name": "ToTensor"}
+                    {
+                        "name": "Resize",
+                        "params": {
+                            "height": 256,
+                            "width": 256
+                        }
+                    },
+                    {
+                        "name": "CenterCrop",
+                        "params": {
+                            "height": 224,
+                            "width": 224
+                        }
+                    },
+                    {
+                        "name": "ToTensor"
+                    }
                 ],
                 "inception_v3": [
-                    {"name": "Resize", "params": {"height": 299, "width": 299}},
-                    {"name": "CenterCrop", "params": {"height": 299, "width": 299}},
-                    {"name": "ToTensor"}
+                    {
+                        "name": "Resize",
+                        "params": {
+                            "height": 299,
+                            "width": 299
+                        }
+                    },
+                    {
+                        "name": "CenterCrop",
+                        "params": {
+                            "height": 299,
+                            "width": 299
+                        }
+                    },
+                    {
+                        "name": "ToTensor"
+                    }
                 ],
                 "vit": [
-                    {"name": "Resize", "params": {"height": 384, "width": 384}},
-                    {"name": "CenterCrop", "params": {"height": 384, "width": 384}},
-                    {"name": "ToTensor"}
+                    {
+                        "name": "Resize",
+                        "params": {
+                            "height": 384,
+                            "width": 384
+                        }
+                    },
+                    {
+                        "name": "CenterCrop",
+                        "params": {
+                            "height": 384,
+                            "width": 384
+                        }
+                    },
+                    {
+                        "name": "ToTensor"
+                    }
                 ],
-                "custom":[
-                    {"name": "ToTensor"}
+                "custom": [
+                    {
+                        "name": "ToTensor"
+                    }
                 ]
             }
-        }
+        },
+        "input_shape": [
+            224,
+            224,
+            3
+        ],
+        "num_classes": 10
     },
-    "hyperparams":{
-        "loss":{
-            "name":"cross_entropy"
+    "hyperparams": {
+        "loss": {
+            "name": "cross_entropy"
         },
-        "optimizer":{
-            "optimizer_name":"sgd",
-            "learning_rate":0.01
+        "optimizer": {
+            "optimizer_name": "adam",
+            "learning_rate": 0.0001
         },
-        "network":"lenet",
-        "batch_size":64,
-        "epochs":10,
-        "seed":0
+        "network": "pretrained",
+        "batch_size": 64,
+        "epochs": 10,
+        "seed": 0,
+        "early_stopping_patience": 5
     },
-    "networks":{
-        "fcn":{
-            "filters":[512,256,128]
-        },
-        "deep_cnn":{
-            "layers": [
-                {"type": "conv2d", "filters": 8, "kernel_size": 5, "stride": 1},
-                {"type": "conv2d", "filters": 8, "kernel_size": 5, "stride": 1, "batchnorm": true},
-                {"type": "maxpool2d", "pool_size": 2, "stride": 2},
-                {"type": "conv2d", "filters": 16, "kernel_size": 5, "stride": 1},
-                {"type": "conv2d", "filters": 16, "kernel_size": 5, "stride": 1, "batchnorm": true},
-                {"type": "maxpool2d", "pool_size": 2, "stride": 2},
-                {"type": "conv2d", "filters": 32, "kernel_size": 5, "stride": 1},
-                {"type": "conv2d", "filters": 32, "kernel_size": 5, "stride": 1, "batchnorm": true},
-                {"type": "maxpool2d", "pool_size": 2, "stride": 2},
-                {"type": "flatten", "kernel_size": 5, "stride": 1}, 
-                {"type": "linear", "in_features": "auto", "out_features": 128},  
-                {"type": "dropout", "rate": 0.8}
+    "networks": {
+        "fcn": {
+            "filters": [
+                512,
+                256,
+                128
             ]
         },
-        "pretrained":{
-            "name":"resnet18"
+        "deep_cnn": {
+            "layers": [
+                {
+                    "type": "conv2d",
+                    "filters": 8,
+                    "kernel_size": 5,
+                    "stride": 1
+                },
+                {
+                    "type": "conv2d",
+                    "filters": 8,
+                    "kernel_size": 5,
+                    "stride": 1,
+                    "batchnorm": true
+                },
+                {
+                    "type": "maxpool2d",
+                    "pool_size": 2,
+                    "stride": 2
+                },
+                {
+                    "type": "conv2d",
+                    "filters": 16,
+                    "kernel_size": 5,
+                    "stride": 1
+                },
+                {
+                    "type": "conv2d",
+                    "filters": 16,
+                    "kernel_size": 5,
+                    "stride": 1,
+                    "batchnorm": true
+                },
+                {
+                    "type": "maxpool2d",
+                    "pool_size": 2,
+                    "stride": 2
+                },
+                {
+                    "type": "conv2d",
+                    "filters": 32,
+                    "kernel_size": 5,
+                    "stride": 1
+                },
+                {
+                    "type": "conv2d",
+                    "filters": 32,
+                    "kernel_size": 5,
+                    "stride": 1,
+                    "batchnorm": true
+                },
+                {
+                    "type": "maxpool2d",
+                    "pool_size": 2,
+                    "stride": 2
+                },
+                {
+                    "type": "flatten",
+                    "kernel_size": 5,
+                    "stride": 1
+                },
+                {
+                    "type": "linear",
+                    "in_features": "auto",
+                    "out_features": 128
+                },
+                {
+                    "type": "dropout",
+                    "rate": 0.8
+                }
+            ]
         },
-        "lenet":{
-            "name":"lenet5"
+        "pretrained": {
+            "name": "resnet18"
+        },
+        "lenet": {
+            "name": "lenet5"
         }
     },
-    "evaluation":{
-        "metrics":["accuracy","precision","f1","recall"]
+    "evaluation": {
+        "metrics": [
+            "accuracy",
+            "precision",
+            "f1",
+            "recall",
+            "auc",
+            "classification_report"
+        ]
     },
-    "logging":{
-        "interval":10,
-        "wandb":{
-            "project":"MNIST_Classification"
+    "checkpoints": {
+        "dir": "experiments/testing_experiment/checkpoints"
+    },
+    "onnx": {
+        "dir": "experiments/testing_experiment/onnx"
+    },
+    "logging": {
+        "interval": 10,
+        "wandb": {
+            "project": "MNIST_Classification"
         },
-        "tensorboard":{
-            "logdir":"resnet18_tensorboard_log"
+        "tensorboard": {
+            "logdir": "experiments/testing_experiment/tensorboard_logs"
         }
     }
-    
 }
