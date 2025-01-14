@@ -1,18 +1,18 @@
 {
     "experiment": {
-        "experiment_name": "run_8",
-        "experiment_dir": "bacil_experiments/run_8"
+        "experiment_name": "run_1",
+        "experiment_dir": "experiment/run_1"
     },
     "data": {
         "dataset": "custom",
-        "data_directory": "/home/julian/indonezia/dataset/region_proposal_dataset",
+        "data_directory": "dataset/",
         "ratio": [
             0.8,
             0.1,
             0.1
         ],
         "transforms": {
-            "name": "based_on_paper",
+            "name": "custom",
             "options": {
                 "default": [
                     {
@@ -33,7 +33,7 @@
                         "name": "ToTensor"
                     }
                 ],
-                "based_on_paper": [
+                "custom": [
                     {
                         "name": "RandomRotate90",
                         "params": {
@@ -108,11 +108,6 @@
                             "width": 384
                         }
                     },
-                    {
-                        "name": "ToTensor"
-                    }
-                ],
-                "custom": [
                     {
                         "name": "ToTensor"
                     }
@@ -247,18 +242,18 @@
         ]
     },
     "checkpoints": {
-        "dir": "bacil_experiments/run_8/checkpoints"
+        "dir": "experiments/run_1/checkpoints"
     },
     "onnx": {
-        "dir": "bacil_experiments/run_8/onnx"
+        "dir": "experiments/run_1/onnx"
     },
     "logging": {
         "interval": 10,
         "wandb": {
-            "project": "TB_CLS_CUSTOM"
+            "project": "Project"
         },
         "tensorboard": {
-            "logdir": "bacil_experiments/run_8/tensorboard_logs"
+            "logdir": "experiments/run_1/tensorboard_logs"
         }
     }
 }
