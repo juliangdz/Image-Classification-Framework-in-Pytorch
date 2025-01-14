@@ -1,11 +1,11 @@
 {
     "experiment": {
-        "experiment_name": "run_8",
-        "experiment_dir": "bacil_experiments/run_8"
+        "experiment_name": "run_7",
+        "experiment_dir": "bacil_experiments/run_7"
     },
     "data": {
         "dataset": "custom",
-        "data_directory": "/home/julian/indonezia/dataset/region_proposal_dataset",
+        "data_directory": "/home/julian/indonezia/dataset/classification_dataset_julian",
         "ratio": [
             0.8,
             0.1,
@@ -145,7 +145,7 @@
         },
         "network": "pretrained",
         "batch_size": 128,
-        "epochs": 20,
+        "epochs": 2,
         "seed": 0,
         "early_stopping_patience": 5
     },
@@ -247,10 +247,10 @@
         ]
     },
     "checkpoints": {
-        "dir": "bacil_experiments/run_8/checkpoints"
+        "dir": "bacil_experiments/run_7/checkpoints"
     },
     "onnx": {
-        "dir": "bacil_experiments/run_8/onnx"
+        "dir": "bacil_experiments/run_7/onnx"
     },
     "logging": {
         "interval": 10,
@@ -258,7 +258,7 @@
             "project": "TB_CLS_CUSTOM"
         },
         "tensorboard": {
-            "logdir": "bacil_experiments/run_8/tensorboard_logs"
+            "logdir": "bacil_experiments/run_7/tensorboard_logs"
         }
     }
 }

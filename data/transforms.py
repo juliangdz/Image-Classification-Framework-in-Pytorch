@@ -6,8 +6,12 @@ def apply_transform(transform_config: list):
     transform_mapping = {
         "Resize": lambda params: A.Resize(**params),
         "CenterCrop": lambda params: A.CenterCrop(**params),
+        "RandomRotate90": lambda params: A.RandomRotate90(**params),
+        "ShiftScaleRotate": lambda params: A.ShiftScaleRotate(**params),
+        "RandomBrightnessContrast": lambda params: A.RandomBrightnessContrast(**params),
+        "HorizontalFlip": lambda params: A.HorizontalFlip(**params),
         "Normalize": lambda params: A.Normalize(**params),
-        "ToTensor": lambda params: ToTensorV2()
+        "ToTensor": lambda params: ToTensorV2(),
     }
 
     for transform in transform_config:

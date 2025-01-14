@@ -15,12 +15,13 @@ class TLManager: # Transfer Learning Manager
             'efficientnet_b0': models.efficientnet_b0,
             'googlenet': models.googlenet,
             'resnet18': models.resnet18,
+            'resnet50':models.resnet50
         }
 
         if self.model_name not in model_func:
             raise ValueError(f"Model {self.model_name} not supported.")
 
-        model = model_func[self.model_name](pretrained=True)
+        model = model_func[self.model_name](pretrained=False)
 
         # Customize the model for the number of classes
         if self.model_name in ['resnet18', 'vgg16', 'googlenet', 'efficientnet_b0']:

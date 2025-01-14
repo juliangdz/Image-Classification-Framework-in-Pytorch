@@ -11,8 +11,12 @@ class OptimizerManager:
         """
         optimizer_name = config.get('optimizer_name', 'sgd').lower()
         lr = config.get('learning_rate', 0.001)
+        weight_decay = config.get('weight_decay', 0.0005)  
 
-        optimizer_params = {'params': model.parameters(), 'lr': lr}
+        if optimizer_name == 'adamw':
+            optimizer_params = {'params': model.parameters(), 'lr': lr,'weight_decay': weight_decay}
+        else:
+            optimizer_params = {'params': model.parameters(), 'lr': lr}
 
         if optimizer_name == 'sgd':
             optimizer_params['momentum'] = config.get('momentum', 0.9)
@@ -57,6 +61,19 @@ config_with_scheduler = {
 config_without_scheduler = {
     'optimizer_name': 'adamw',
     'learning_rate': 0.001
+}
+
+config_adamw_cosineannealing = {
+    'optimizer_name': 'adamw',
+    'learning_rate': 0.001,
+    'scheduler': {
+        'name': 'cosineannealinglr',
+        'params': {
+            'T_max': 50,      # Number of iterations (epochs) to restart or reduce LR
+            'eta_min': 1e-5,  # Minimum learning rate
+            'last_epoch': -1  # Sets the initial epoch. Use -1 if you want to start training fresh
+        }
+    }
 }
 
 # Assume 'model' is your neural network model

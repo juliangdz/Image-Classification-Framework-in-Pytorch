@@ -12,7 +12,7 @@ def main(args):
     device = get_device()
 
     # Load Dataset
-    train_loader, val_loader, test_loader, input_shape, num_classes = load_dataset(config)
+    train_loader, val_loader, test_loader, input_shape, num_classes,class_names = load_dataset(config)
 
     # Setup Loggers
     log_dir = check_and_create_directory(config['logging']['tensorboard']['logdir'])
@@ -31,6 +31,7 @@ def main(args):
         train_loader=train_loader,
         val_loader=val_loader,
         test_loader=test_loader,
+        class_names=class_names,
         input_shape=input_shape,
         num_classes=num_classes,
         device=device

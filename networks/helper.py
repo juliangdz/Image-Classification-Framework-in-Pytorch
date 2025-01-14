@@ -1,5 +1,5 @@
 import torch
-from data.helper import get_sample_images
+from data.helper import get_sample_images,get_balanced_sample
 from tqdm import tqdm
 import numpy as np
 import os
@@ -101,7 +101,7 @@ def evaluate(model, data_loader, criterion, metrics_manager, device, tensorboard
 
     return avg_metrics, confusion_mat
 
-def train(network_name, model, tensorboard_cb, wandb_cb, train_loader, val_loader, test_loader, 
+def train(network_name, model, tensorboard_cb, wandb_cb, train_loader, val_loader, test_loader, class_names,
           optimizer, criterion, metrics_manager, epochs, device, log_interval=10,
           checkpoint_dir="checkpoints", early_stopping_patience=5):
     """
@@ -117,7 +117,8 @@ def train(network_name, model, tensorboard_cb, wandb_cb, train_loader, val_loade
     os.makedirs(checkpoint_dir, exist_ok=True)
 
     # Log some sample images
-    sample_images, sample_labels = get_sample_images(train_loader)
+    tran_loader_iter = iter(train_loader)
+    sample_images, sample_labels = get_balanced_sample(tran_loader_iter,n_pos=32,n_neg=32)
     print(f"Input Shape: {sample_images.shape} - {sample_labels.shape}")
     tensorboard_cb.log_images(sample_images, sample_labels, tag='Train Samples')
     wandb_cb.log_images(sample_images, sample_labels, tag='Train Samples')
@@ -149,7 +150,8 @@ def train(network_name, model, tensorboard_cb, wandb_cb, train_loader, val_loade
                 tensorboard_cb.log_model_parameters(model, step)
 
                 if network_name != 'fcn':
-                    sample_images, _ = get_sample_images(train_loader)
+                    train_loader_iter = iter(train_loader)
+                    sample_images, _ = get_balanced_sample(train_loader_iter,n_pos=32,n_neg=32)
                     tensorboard_cb.log_feature_maps(model, sample_images.to(device), step)
 
         total_training_steps = (epoch + 1) * len(train_loader)
@@ -194,5 +196,19 @@ def train(network_name, model, tensorboard_cb, wandb_cb, train_loader, val_loade
     # If network has conv layers
     if network_name != 'fcn':
         # GradCAM example on test images
-        test_images, test_labels = get_sample_images(test_loader)
-        wandb_cb.apply_gradcam_and_log_batch(model, test_images, device, total_training_steps, tag='Test/GradCam')
+        test_loader_iter = iter(test_loader)
+        test_images, test_labels = get_balanced_sample(test_loader_iter,n_pos=32,n_neg=32)
+        all_preds_for_test = model(test_images.to(device))  # shape: [B, num_classes]
+        preds = all_preds_for_test.argmax(dim=1).cpu()
+        targets = test_labels
+        wandb_cb.apply_gradcam_and_log_batch(
+            model,
+            test_images,
+            device,
+            step=total_training_steps,
+            tag='Test/GradCam',
+            preds=preds,
+            targets=targets,
+            class_names=class_names
+        )
+        # wandb_cb.apply_gradcam_and_log_batch(model, test_images, device, total_training_steps, tag='Test/GradCam')

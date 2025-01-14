@@ -16,7 +16,7 @@ class CustomImageDataset(Dataset):
     """
     def __init__(self, phase='train', transforms=None, data_dir='./data', ratio=[0.8,0.1,0.1]):
         super().__init__()
-        self.data_dir = data_dir
+        self.data_dir = os.path.join(data_dir,phase)
         self.transforms = transforms
         self.ratio = ratio
 
@@ -24,37 +24,28 @@ class CustomImageDataset(Dataset):
         self.samples = []
         self.class_to_idx = {}
         self.idx_to_class = {}
-
-        classes = sorted(os.listdir(data_dir))
+        
+        classes = sorted(os.listdir(self.data_dir))
         for idx, cls in enumerate(classes):
             self.class_to_idx[cls] = idx
             self.idx_to_class[idx] = cls
-            class_folder = os.path.join(data_dir, cls)
+            class_folder = os.path.join(self.data_dir, cls)
             if os.path.isdir(class_folder):
                 for image_name in os.listdir(class_folder):
                     if image_name.lower().endswith(('png', 'jpg', 'jpeg')):
                         image_path = os.path.join(class_folder, image_name)
                         self.samples.append((image_path, idx))
-
+        print('Class Map (label): ',self.class_to_idx)
+        print('Class Map (idx): ',self.idx_to_class)
         # Convert to dataset-like structure
-        full_dataset = self.samples
         self.num_classes = len(self.class_to_idx)
-
-        # Use train_test_val_split logic
-        self.train_dataset, self.val_dataset, self.test_dataset = train_test_val_split(full_dataset, ratio)
-
-        if phase == 'train':
-            self.dataset = self.train_dataset
-        elif phase == 'val':
-            self.dataset = self.val_dataset
-        else:
-            self.dataset = self.test_dataset
+        self.class_names = list(self.class_to_idx.keys())
 
     def __len__(self):
-        return len(self.dataset)
+        return len(self.samples)
 
     def __getitem__(self, idx):
-        image_path, label = self.dataset[idx]
+        image_path, label = self.samples[idx]
         image = Image.open(image_path).convert('RGB')
         image = np.array(image)
 
@@ -65,4 +56,4 @@ class CustomImageDataset(Dataset):
         if not isinstance(image, torch.Tensor):
             image = T.ToTensor()(image)
 
-        return image, label
+        return image/255., label
